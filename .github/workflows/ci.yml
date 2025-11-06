@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache Node modules
+        uses: actions/cache@v4
+        with:
+          path: frontend/festify/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('frontend/festify/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install frontend dependencies
+        working-directory: frontend/festify
+        run: |
+          npm ci
+
+      - name: Build frontend
+        working-directory: frontend/festify
+        run: |
+          npm run build
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Ensure mvnw is executable
+        run: chmod +x mvnw || true
+
+      - name: Build backend (use project-local mvnw when possible)
+        run: |
+          # mvnw prefers system mvn; runners typically have mvn preinstalled. If not, this will still work with system mvn.
+          ./mvnw -f backend/pom.xml -DskipTests package
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: backend/target/festify-backend-0.0.1-SNAPSHOT.jar

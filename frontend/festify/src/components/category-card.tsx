@@ -44,13 +44,13 @@ type CategoryCardProps = {
     id: string;
     name: string;
     description: string | null;
-    icon_name: string | null;
+    iconName: string | null;
   };
   index?: number;
 };
 
 export function CategoryCard({ category, index = 0 }: CategoryCardProps) {
-  const Icon = category.icon_name && iconMap[category.icon_name] ? iconMap[category.icon_name] : Folder;
+  const Icon = category.iconName && iconMap[category.iconName] ? iconMap[category.iconName] : Folder;
   const gradientClass = gradientColors[index % gradientColors.length];
   
   return (

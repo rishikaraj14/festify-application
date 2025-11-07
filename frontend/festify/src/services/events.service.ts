@@ -80,7 +80,7 @@ export const eventsService = {
   /**
    * Filter events based on user eligibility
    */
-  filterByEligibility(events: Event[], profile: { college_id?: string } | null): Event[] {
+  filterByEligibility(events: Event[], profile: { college_id?: string | null } | null): Event[] {
     if (!events || events.length === 0) return [];
     
     if (profile) {

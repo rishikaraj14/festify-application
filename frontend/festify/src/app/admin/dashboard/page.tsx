@@ -58,7 +58,7 @@ import type { Database } from '@/lib/supabase/types';
 import { apiFetch } from '@/utils/apiClient';
 import { collegesService } from '@/services/colleges.service';
 import { profilesService } from '@/services/profiles.service';
-import type { College, Profile } from '@/types/api';
+import type { College, Profile, UserRole } from '@/types/api';
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -348,10 +348,10 @@ export default function AdminDashboard() {
       const collegeData = {
         name: collegeForm.name.trim(),
         location: collegeForm.location.trim(),
-        description: collegeForm.description.trim() || null,
-        establishedYear: collegeForm.established_year ? parseInt(collegeForm.established_year) : null,
-        website: collegeForm.website.trim() || null,
-        logoUrl: collegeForm.logo_url.trim() || null,
+        description: collegeForm.description.trim() || undefined,
+        establishedYear: collegeForm.established_year ? parseInt(collegeForm.established_year) : undefined,
+        website: collegeForm.website.trim() || undefined,
+        logoUrl: collegeForm.logo_url.trim() || undefined,
       };
 
       if (editCollege) {
@@ -431,10 +431,10 @@ export default function AdminDashboard() {
       const userData = {
         fullName: userForm.full_name.trim(),
         email: userForm.email.trim().toLowerCase(),
-        role: userForm.role.toUpperCase(),
-        collegeId: userForm.college_id || null,
-        phone: userForm.phone.trim() || null,
-        bio: userForm.bio.trim() || null,
+        role: userForm.role.toUpperCase() as UserRole,
+        collegeId: userForm.college_id || undefined,
+        phone: userForm.phone.trim() || undefined,
+        bio: userForm.bio.trim() || undefined,
       };
 
       if (editUser) {
@@ -446,12 +446,13 @@ export default function AdminDashboard() {
           description: 'User updated successfully',
         });
       } else {
-        // Add new user - requires userId from Supabase
+        // Add new user - requires userId and id from Supabase
         // Note: For creating profiles, we need a valid Supabase userId
         // This should ideally be handled by creating a Supabase auth user first
         const profileData = {
-          ...userData,
+          id: 'temp-' + Date.now(), // Temporary - should be actual profile ID
           userId: 'temp-' + Date.now(), // Temporary - should be actual Supabase user ID
+          ...userData,
         };
         await profilesService.create(profileData);
 
@@ -1087,7 +1088,7 @@ export default function AdminDashboard() {
                               </TableCell>
                               <TableCell>
                                 {user.college?.id 
-                                  ? user.college.name || colleges.find(c => c.id === user.college.id)?.name || 'Unknown'
+                                  ? user.college?.name || colleges.find(c => c.id === user.college?.id)?.name || 'Unknown'
                                   : <span className="text-muted-foreground text-sm">No college</span>
                                 }
                               </TableCell>
@@ -1111,7 +1112,7 @@ export default function AdminDashboard() {
                                         open: true,
                                         type: 'user',
                                         id: user.id,
-                                        name: user.full_name,
+                                        name: user.fullName,
                                       })
                                     }
                                     className="gap-1 hover:bg-destructive hover:text-destructive-foreground"

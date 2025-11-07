@@ -1,0 +1,40 @@
+# Railway Ignore File - Exclude unnecessary files from deployment
+
+# Maven
+target/
+!target/*.jar
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.eclipse/
+.settings/
+.classpath
+.project
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+
+# Test files
+src/test/
+**/test/**
+
+# Documentation (optional - remove if you want docs in container)
+*.md
+!README.md
+
+# Git
+.git/
+.gitignore
+.gitattributes

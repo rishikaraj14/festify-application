@@ -48,7 +48,12 @@ public class PaymentController {
      */
     @PostMapping
     public ResponseEntity<Payment> createPayment(@RequestBody Payment payment) {
-        payment.setCreatedAt(OffsetDateTime.now());
+        OffsetDateTime now = OffsetDateTime.now();
+        if (payment.getPaymentDate() == null) {
+            payment.setPaymentDate(now);
+        }
+        payment.setCreatedAt(now);
+        payment.setUpdatedAt(now);
         Payment savedPayment = paymentRepository.save(payment);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedPayment);
     }
@@ -65,10 +70,12 @@ public class PaymentController {
                 .map(payment -> {
                     payment.setRegistration(paymentDetails.getRegistration());
                     payment.setTicket(paymentDetails.getTicket());
-                    payment.setStatus(paymentDetails.getStatus());
+                    payment.setPaymentStatus(paymentDetails.getPaymentStatus());
                     payment.setAmount(paymentDetails.getAmount());
                     payment.setPaymentMethod(paymentDetails.getPaymentMethod());
                     payment.setTransactionId(paymentDetails.getTransactionId());
+                    payment.setPaymentDate(paymentDetails.getPaymentDate());
+                    payment.setUpdatedAt(OffsetDateTime.now());
                     
                     Payment updatedPayment = paymentRepository.save(payment);
                     return ResponseEntity.ok(updatedPayment);

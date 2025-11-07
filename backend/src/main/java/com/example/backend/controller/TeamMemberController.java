@@ -48,7 +48,9 @@ public class TeamMemberController {
      */
     @PostMapping
     public ResponseEntity<TeamMember> createTeamMember(@RequestBody TeamMember teamMember) {
-        teamMember.setJoinedAt(OffsetDateTime.now());
+        if (teamMember.getJoinedAt() == null) {
+            teamMember.setJoinedAt(OffsetDateTime.now());
+        }
         TeamMember savedTeamMember = teamMemberRepository.save(teamMember);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedTeamMember);
     }
@@ -64,7 +66,12 @@ public class TeamMemberController {
         return teamMemberRepository.findById(id)
                 .map(teamMember -> {
                     teamMember.setTeam(teamMemberDetails.getTeam());
-                    teamMember.setMember(teamMemberDetails.getMember());
+                    teamMember.setMemberName(teamMemberDetails.getMemberName());
+                    teamMember.setMemberEmail(teamMemberDetails.getMemberEmail());
+                    teamMember.setMemberPhone(teamMemberDetails.getMemberPhone());
+                    teamMember.setUniversityRegistrationNumber(teamMemberDetails.getUniversityRegistrationNumber());
+                    teamMember.setLeader(teamMemberDetails.getLeader());
+                    teamMember.setJoinedAt(teamMemberDetails.getJoinedAt());
                     
                     TeamMember updatedTeamMember = teamMemberRepository.save(teamMember);
                     return ResponseEntity.ok(updatedTeamMember);
@@ -93,12 +100,4 @@ public class TeamMemberController {
         return ResponseEntity.ok(teamMembers);
     }
 
-    /**
-     * Get teams by member ID.
-     */
-    @GetMapping("/member/{memberId}")
-    public ResponseEntity<List<TeamMember>> getTeamsByMember(@PathVariable UUID memberId) {
-        List<TeamMember> teamMembers = teamMemberRepository.findByMemberId(memberId);
-        return ResponseEntity.ok(teamMembers);
-    }
 }

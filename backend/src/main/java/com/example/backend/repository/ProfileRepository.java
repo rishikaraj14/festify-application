@@ -15,13 +15,6 @@ import java.util.UUID;
 public interface ProfileRepository extends JpaRepository<Profile, UUID> {
     
     /**
-     * Find a profile by user ID.
-     * @param userId the Supabase auth user ID
-     * @return Optional containing the profile if found
-     */
-    Optional<Profile> findByUserId(UUID userId);
-    
-    /**
      * Find a profile by email address.
      * @param email the user's email
      * @return Optional containing the profile if found

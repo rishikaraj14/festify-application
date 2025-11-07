@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -73,6 +74,11 @@ public class CollegeController {
                     college.setLocation(collegeDetails.getLocation());
                     college.setDescription(collegeDetails.getDescription());
                     college.setLogoUrl(collegeDetails.getLogoUrl());
+                    college.setWebsite(collegeDetails.getWebsite());
+                    college.setEstablishedYear(collegeDetails.getEstablishedYear());
+                    college.setContactEmail(collegeDetails.getContactEmail());
+                    college.setContactPhone(collegeDetails.getContactPhone());
+                    college.setUpdatedAt(OffsetDateTime.now());
                     College updatedCollege = collegeRepository.save(college);
                     return ResponseEntity.ok(updatedCollege);
                 })

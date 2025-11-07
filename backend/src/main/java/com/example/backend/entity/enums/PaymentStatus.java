@@ -5,6 +5,7 @@ package com.example.backend.entity.enums;
  */
 public enum PaymentStatus {
     PENDING,
+    PROCESSING,
     COMPLETED,
     FAILED,
     REFUNDED

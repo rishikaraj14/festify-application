@@ -66,7 +66,22 @@ public class RegistrationController {
                 .map(registration -> {
                     registration.setEvent(registrationDetails.getEvent());
                     registration.setUser(registrationDetails.getUser());
-                    registration.setStatus(registrationDetails.getStatus());
+                    registration.setRegistrationStatus(registrationDetails.getRegistrationStatus());
+                    registration.setRegistrationDate(registrationDetails.getRegistrationDate());
+                    registration.setAttendedAt(registrationDetails.getAttendedAt());
+                    registration.setNotes(registrationDetails.getNotes());
+                    registration.setTeam(registrationDetails.getTeam());
+                    registration.setTeamSize(registrationDetails.getTeamSize());
+                    registration.setTeamName(registrationDetails.getTeamName());
+                    registration.setTeamLeaderName(registrationDetails.getTeamLeaderName());
+                    registration.setTeamLeaderPhone(registrationDetails.getTeamLeaderPhone());
+                    registration.setTeamLeaderEmail(registrationDetails.getTeamLeaderEmail());
+                    registration.setTeamLeaderUniversityReg(registrationDetails.getTeamLeaderUniversityReg());
+                    registration.setPaymentStatus(registrationDetails.getPaymentStatus());
+                    registration.setPaymentAmount(registrationDetails.getPaymentAmount());
+                    registration.setPaymentMethod(registrationDetails.getPaymentMethod());
+                    registration.setTransactionId(registrationDetails.getTransactionId());
+                    registration.setPaidAt(registrationDetails.getPaidAt());
                     registration.setUpdatedAt(OffsetDateTime.now());
                     
                     Registration updatedRegistration = registrationRepository.save(registration);
@@ -101,7 +116,7 @@ public class RegistrationController {
      */
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Registration>> getRegistrationsByUser(@PathVariable UUID userId) {
-        List<Registration> registrations = registrationRepository.findByUserId(userId);
+        List<Registration> registrations = registrationRepository.findByUser_Id(userId);
         return ResponseEntity.ok(registrations);
     }
 }

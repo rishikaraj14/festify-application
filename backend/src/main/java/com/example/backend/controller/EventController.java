@@ -99,7 +99,7 @@ public class EventController {
      */
     @GetMapping("/status/{status}")
     public ResponseEntity<List<Event>> getEventsByStatus(@PathVariable EventStatus status) {
-        List<Event> events = eventRepository.findByStatus(status);
+        List<Event> events = eventRepository.findByEventStatus(status);
         return ResponseEntity.ok(events);
     }
 
@@ -170,16 +170,60 @@ public class EventController {
         
         return eventRepository.findById(id)
                 .map(event -> {
-                    event.setTitle(eventDetails.getTitle());
-                    event.setDescription(eventDetails.getDescription());
-                    event.setBannerUrl(eventDetails.getBannerUrl());
-                    event.setStartTime(eventDetails.getStartTime());
-                    event.setEndTime(eventDetails.getEndTime());
-                    event.setVenue(eventDetails.getVenue());
-                    event.setCapacity(eventDetails.getCapacity());
-                    event.setPrice(eventDetails.getPrice());
-                    event.setParticipationType(eventDetails.getParticipationType());
-                    event.setStatus(eventDetails.getStatus());
+                    if (eventDetails.getTitle() != null) {
+                        event.setTitle(eventDetails.getTitle());
+                    }
+                    if (eventDetails.getDescription() != null) {
+                        event.setDescription(eventDetails.getDescription());
+                    }
+                    if (eventDetails.getImageUrl() != null) {
+                        event.setImageUrl(eventDetails.getImageUrl());
+                    }
+                    if (eventDetails.getStartDate() != null) {
+                        event.setStartDate(eventDetails.getStartDate());
+                    }
+                    if (eventDetails.getEndDate() != null) {
+                        event.setEndDate(eventDetails.getEndDate());
+                    }
+                    if (eventDetails.getLocation() != null) {
+                        event.setLocation(eventDetails.getLocation());
+                    }
+                    event.setVenueDetails(eventDetails.getVenueDetails());
+                    if (eventDetails.getParticipationType() != null) {
+                        event.setParticipationType(eventDetails.getParticipationType());
+                    }
+                    if (eventDetails.getEventStatus() != null) {
+                        event.setEventStatus(eventDetails.getEventStatus());
+                    }
+                    if (eventDetails.getTeamSizeMin() != null) {
+                        event.setTeamSizeMin(eventDetails.getTeamSizeMin());
+                    }
+                    if (eventDetails.getTeamSizeMax() != null) {
+                        event.setTeamSizeMax(eventDetails.getTeamSizeMax());
+                    }
+                    event.setMaxAttendees(eventDetails.getMaxAttendees());
+                    if (eventDetails.getCurrentAttendees() != null) {
+                        event.setCurrentAttendees(eventDetails.getCurrentAttendees());
+                    }
+                    event.setRegistrationDeadline(eventDetails.getRegistrationDeadline());
+                    if (eventDetails.getFeatured() != null) {
+                        event.setFeatured(eventDetails.getFeatured());
+                    }
+                    if (eventDetails.getGlobal() != null) {
+                        event.setGlobal(eventDetails.getGlobal());
+                    }
+                    if (eventDetails.getIndividualPrice() != null) {
+                        event.setIndividualPrice(eventDetails.getIndividualPrice());
+                    }
+                    if (eventDetails.getTeamBasePrice() != null) {
+                        event.setTeamBasePrice(eventDetails.getTeamBasePrice());
+                    }
+                    if (eventDetails.getPricePerMember() != null) {
+                        event.setPricePerMember(eventDetails.getPricePerMember());
+                    }
+                    if (eventDetails.getHasCustomTeamPricing() != null) {
+                        event.setHasCustomTeamPricing(eventDetails.getHasCustomTeamPricing());
+                    }
 
                     // Update category if provided
                     if (eventDetails.getCategory() != null && eventDetails.getCategory().getId() != null) {

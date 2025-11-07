@@ -18,9 +18,6 @@ public class Profile {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
     
-    @Column(name = "user_id", nullable = false)
-    private UUID userId;
-    
     @Column(name = "full_name", nullable = false)
     private String fullName;
     
@@ -29,6 +26,18 @@ public class Profile {
     
     @Column(name = "avatar_url")
     private String avatarUrl;
+    
+    @Column(name = "phone")
+    private String phone;
+    
+    @Column(name = "bio", columnDefinition = "TEXT")
+    private String bio;
+    
+    @Column(name = "organization_name")
+    private String organizationName;
+    
+    @Column(name = "website")
+    private String website;
     
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
@@ -47,17 +56,36 @@ public class Profile {
     // Constructors
     public Profile() {}
 
-    public Profile(UUID id, UUID userId, String fullName, String email, String avatarUrl, 
+    public Profile(UUID id, String fullName, String email, String avatarUrl, String phone,
+                   String bio, String organizationName, String website,
                    UserRole role, College college, OffsetDateTime createdAt, OffsetDateTime updatedAt) {
         this.id = id;
-        this.userId = userId;
         this.fullName = fullName;
         this.email = email;
         this.avatarUrl = avatarUrl;
+        this.phone = phone;
+        this.bio = bio;
+        this.organizationName = organizationName;
+        this.website = website;
         this.role = role;
         this.college = college;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.createdAt == null) {
+            this.createdAt = OffsetDateTime.now();
+        }
+        if (this.updatedAt == null) {
+            this.updatedAt = this.createdAt;
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = OffsetDateTime.now();
     }
 
     // Getters and Setters
@@ -67,14 +95,6 @@ public class Profile {
 
     public void setId(UUID id) {
         this.id = id;
-    }
-
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public void setUserId(UUID userId) {
-        this.userId = userId;
     }
 
     public String getFullName() {
@@ -99,6 +119,38 @@ public class Profile {
 
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
     }
 
     public UserRole getRole() {

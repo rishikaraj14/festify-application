@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -71,7 +72,8 @@ public class CategoryController {
                 .map(category -> {
                     category.setName(categoryDetails.getName());
                     category.setDescription(categoryDetails.getDescription());
-                    category.setIconUrl(categoryDetails.getIconUrl());
+                    category.setIconName(categoryDetails.getIconName());
+                    category.setUpdatedAt(OffsetDateTime.now());
                     Category updatedCategory = categoryRepository.save(category);
                     return ResponseEntity.ok(updatedCategory);
                 })

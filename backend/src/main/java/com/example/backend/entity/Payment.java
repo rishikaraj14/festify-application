@@ -24,39 +24,74 @@ public class Payment {
     private Registration registration;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ticket_id", nullable = false)
+    @JoinColumn(name = "ticket_id")
     private Ticket ticket;
-    
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private PaymentStatus status;
-    
+    @Column(name = "payment_status", nullable = false)
+    private PaymentStatus paymentStatus;
+
     @Column(name = "amount", precision = 10, scale = 2, nullable = false)
     private BigDecimal amount;
-    
+
     @Column(name = "payment_method")
     private String paymentMethod;
-    
+
     @Column(name = "transaction_id")
     private String transactionId;
-    
+
+    @Column(name = "payment_date")
+    private OffsetDateTime paymentDate;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private OffsetDateTime updatedAt;
 
     // Constructors
     public Payment() {}
 
-    public Payment(UUID id, Registration registration, Ticket ticket, PaymentStatus status,
+    public Payment(UUID id, Registration registration, Ticket ticket, PaymentStatus paymentStatus,
                   BigDecimal amount, String paymentMethod, String transactionId,
-                  OffsetDateTime createdAt) {
+                  OffsetDateTime paymentDate, OffsetDateTime createdAt, OffsetDateTime updatedAt) {
         this.id = id;
         this.registration = registration;
         this.ticket = ticket;
-        this.status = status;
+        this.paymentStatus = paymentStatus;
         this.amount = amount;
         this.paymentMethod = paymentMethod;
         this.transactionId = transactionId;
+        this.paymentDate = paymentDate;
         this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID();
+        }
+        if (this.paymentStatus == null) {
+            this.paymentStatus = PaymentStatus.PENDING;
+        }
+        if (this.amount == null) {
+            this.amount = BigDecimal.ZERO;
+        }
+        if (this.paymentDate == null) {
+            this.paymentDate = OffsetDateTime.now();
+        }
+        if (this.createdAt == null) {
+            this.createdAt = OffsetDateTime.now();
+        }
+        if (this.updatedAt == null) {
+            this.updatedAt = this.createdAt;
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = OffsetDateTime.now();
     }
 
     // Getters and Setters
@@ -84,12 +119,12 @@ public class Payment {
         this.ticket = ticket;
     }
 
-    public PaymentStatus getStatus() {
-        return status;
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
     }
 
-    public void setStatus(PaymentStatus status) {
-        this.status = status;
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 
     public BigDecimal getAmount() {
@@ -116,11 +151,27 @@ public class Payment {
         this.transactionId = transactionId;
     }
 
+    public OffsetDateTime getPaymentDate() {
+        return paymentDate;
+    }
+
+    public void setPaymentDate(OffsetDateTime paymentDate) {
+        this.paymentDate = paymentDate;
+    }
+
     public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
 
     public void setCreatedAt(OffsetDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public OffsetDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(OffsetDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

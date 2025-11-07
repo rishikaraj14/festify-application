@@ -2,6 +2,7 @@ package com.example.backend.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -49,10 +50,15 @@ public class SecurityConfig {
                 
                 // Allow public access to GET requests (read-only operations)
                 .requestMatchers("/api/hello").permitAll()
-                .requestMatchers("GET", "/api/colleges/**").permitAll()
-                .requestMatchers("GET", "/api/categories/**").permitAll()
-                .requestMatchers("GET", "/api/events/**").permitAll()
-                .requestMatchers("GET", "/api/reviews/**").permitAll()
+                .requestMatchers("/api/health").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/colleges/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/registrations/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/teams/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/tickets/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/payments/**").permitAll()
                 
                 // Require authentication for all write operations and other endpoints
                 .anyRequest().authenticated()

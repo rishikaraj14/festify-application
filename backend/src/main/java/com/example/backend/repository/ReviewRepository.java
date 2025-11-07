@@ -21,7 +21,7 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
     /**
      * Find all reviews by a specific user.
      */
-    List<Review> findByUserId(UUID userId);
+    List<Review> findByUser_Id(UUID userId);
     
     /**
      * Find reviews by rating.

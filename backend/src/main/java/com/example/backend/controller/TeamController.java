@@ -48,7 +48,9 @@ public class TeamController {
      */
     @PostMapping
     public ResponseEntity<Team> createTeam(@RequestBody Team team) {
-        team.setCreatedAt(OffsetDateTime.now());
+    OffsetDateTime now = OffsetDateTime.now();
+    team.setCreatedAt(now);
+    team.setUpdatedAt(now);
         Team savedTeam = teamRepository.save(team);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedTeam);
     }
@@ -64,9 +66,14 @@ public class TeamController {
         return teamRepository.findById(id)
                 .map(team -> {
                     team.setEvent(teamDetails.getEvent());
-                    team.setLeader(teamDetails.getLeader());
+                    team.setTeamLeader(teamDetails.getTeamLeader());
                     team.setRegistration(teamDetails.getRegistration());
-                    team.setName(teamDetails.getName());
+                    team.setTeamName(teamDetails.getTeamName());
+                    team.setTeamLeaderName(teamDetails.getTeamLeaderName());
+                    team.setTeamLeaderPhone(teamDetails.getTeamLeaderPhone());
+                    team.setTeamLeaderEmail(teamDetails.getTeamLeaderEmail());
+                    team.setTeamLeaderUniversityReg(teamDetails.getTeamLeaderUniversityReg());
+                    team.setUpdatedAt(OffsetDateTime.now());
                     
                     Team updatedTeam = teamRepository.save(team);
                     return ResponseEntity.ok(updatedTeam);
@@ -100,7 +107,7 @@ public class TeamController {
      */
     @GetMapping("/leader/{leaderId}")
     public ResponseEntity<List<Team>> getTeamsByLeader(@PathVariable UUID leaderId) {
-        List<Team> teams = teamRepository.findByLeaderId(leaderId);
+        List<Team> teams = teamRepository.findByTeamLeaderId(leaderId);
         return ResponseEntity.ok(teams);
     }
 }

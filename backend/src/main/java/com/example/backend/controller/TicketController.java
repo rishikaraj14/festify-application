@@ -48,7 +48,9 @@ public class TicketController {
      */
     @PostMapping
     public ResponseEntity<Ticket> createTicket(@RequestBody Ticket ticket) {
-        ticket.setIssuedAt(OffsetDateTime.now());
+        if (ticket.getIssuedAt() == null) {
+            ticket.setIssuedAt(OffsetDateTime.now());
+        }
         Ticket savedTicket = ticketRepository.save(ticket);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedTicket);
     }
@@ -63,10 +65,15 @@ public class TicketController {
         
         return ticketRepository.findById(id)
                 .map(ticket -> {
-                    ticket.setRegistration(ticketDetails.getRegistration());
                     ticket.setEvent(ticketDetails.getEvent());
-                    ticket.setType(ticketDetails.getType());
-                    ticket.setQrCodeUrl(ticketDetails.getQrCodeUrl());
+                    ticket.setRegistration(ticketDetails.getRegistration());
+                    ticket.setTicketType(ticketDetails.getTicketType());
+                    ticket.setPrice(ticketDetails.getPrice());
+                    ticket.setTicketCode(ticketDetails.getTicketCode());
+                    ticket.setValid(ticketDetails.getValid());
+                    ticket.setIssuedAt(ticketDetails.getIssuedAt());
+                    ticket.setUsedAt(ticketDetails.getUsedAt());
+                    ticket.setUpdatedAt(OffsetDateTime.now());
                     
                     Ticket updatedTicket = ticketRepository.save(ticket);
                     return ResponseEntity.ok(updatedTicket);

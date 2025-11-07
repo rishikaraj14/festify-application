@@ -57,7 +57,7 @@ public class ProfileController {
      */
     @GetMapping("/user/{userId}")
     public ResponseEntity<Profile> getProfileByUserId(@PathVariable UUID userId) {
-        return profileRepository.findByUserId(userId)
+        return profileRepository.findById(userId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -101,6 +101,10 @@ public class ProfileController {
                     profile.setFullName(profileDetails.getFullName());
                     profile.setEmail(profileDetails.getEmail());
                     profile.setAvatarUrl(profileDetails.getAvatarUrl());
+                    profile.setPhone(profileDetails.getPhone());
+                    profile.setBio(profileDetails.getBio());
+                    profile.setOrganizationName(profileDetails.getOrganizationName());
+                    profile.setWebsite(profileDetails.getWebsite());
                     profile.setRole(profileDetails.getRole());
                     
                     // Update college relationship if provided

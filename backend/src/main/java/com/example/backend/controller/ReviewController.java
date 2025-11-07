@@ -48,7 +48,9 @@ public class ReviewController {
      */
     @PostMapping
     public ResponseEntity<Review> createReview(@RequestBody Review review) {
-        review.setCreatedAt(OffsetDateTime.now());
+        OffsetDateTime now = OffsetDateTime.now();
+        review.setCreatedAt(now);
+        review.setUpdatedAt(now);
         Review savedReview = reviewRepository.save(review);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedReview);
     }
@@ -67,6 +69,7 @@ public class ReviewController {
                     review.setUser(reviewDetails.getUser());
                     review.setRating(reviewDetails.getRating());
                     review.setComment(reviewDetails.getComment());
+                    review.setUpdatedAt(OffsetDateTime.now());
                     
                     Review updatedReview = reviewRepository.save(review);
                     return ResponseEntity.ok(updatedReview);
@@ -100,7 +103,7 @@ public class ReviewController {
      */
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Review>> getReviewsByUser(@PathVariable UUID userId) {
-        List<Review> reviews = reviewRepository.findByUserId(userId);
+        List<Review> reviews = reviewRepository.findByUser_Id(userId);
         return ResponseEntity.ok(reviews);
     }
 }

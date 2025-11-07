@@ -41,24 +41,24 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     
     /**
      * Find all events with a specific status.
-     * @param status the event status
+     * @param eventStatus the event status
      * @return List of events with the specified status
      */
-    List<Event> findByStatus(EventStatus status);
+    List<Event> findByEventStatus(EventStatus eventStatus);
     
     /**
-     * Find all published events that are upcoming (start time in the future).
+     * Find all published events that are upcoming (start date in the future).
      * @param currentTime the current timestamp
      * @return List of upcoming published events
      */
-    @Query("SELECT e FROM Event e WHERE e.status = 'PUBLISHED' AND e.startTime > :currentTime ORDER BY e.startTime ASC")
+    @Query("SELECT e FROM Event e WHERE e.eventStatus = 'PUBLISHED' AND e.startDate > :currentTime ORDER BY e.startDate ASC")
     List<Event> findUpcomingPublishedEvents(@Param("currentTime") OffsetDateTime currentTime);
     
     /**
      * Find all events by college and status.
      * @param collegeId the college ID
-     * @param status the event status
+     * @param eventStatus the event status
      * @return List of events matching the criteria
      */
-    List<Event> findByCollegeIdAndStatus(UUID collegeId, EventStatus status);
+    List<Event> findByCollegeIdAndEventStatus(UUID collegeId, EventStatus eventStatus);
 }

@@ -26,8 +26,8 @@ public class Event {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
     
-    @Column(name = "banner_url")
-    private String bannerUrl;
+    @Column(name = "image_url")
+    private String imageUrl;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
@@ -41,58 +41,147 @@ public class Event {
     @JoinColumn(name = "organizer_id", nullable = false)
     private Profile organizer;
     
-    @Column(name = "start_time", nullable = false)
-    private OffsetDateTime startTime;
+    @Column(name = "start_date", nullable = false)
+    private OffsetDateTime startDate;
     
-    @Column(name = "end_time", nullable = false)
-    private OffsetDateTime endTime;
-    
-    @Column(name = "venue", nullable = false)
-    private String venue;
-    
-    @Column(name = "capacity", nullable = false)
-    private Integer capacity;
-    
-    @Column(name = "price", precision = 10, scale = 2, nullable = false)
-    private BigDecimal price;
-    
+    @Column(name = "end_date", nullable = false)
+    private OffsetDateTime endDate;
+
+    @Column(name = "location", nullable = false)
+    private String location;
+
+    @Column(name = "venue_details")
+    private String venueDetails;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "participation_type", nullable = false)
     private ParticipationType participationType;
-    
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private EventStatus status;
-    
+    @Column(name = "event_status", nullable = false)
+    private EventStatus eventStatus;
+
+    @Column(name = "team_size_min", nullable = false)
+    private Integer teamSizeMin;
+
+    @Column(name = "team_size_max", nullable = false)
+    private Integer teamSizeMax;
+
+    @Column(name = "max_attendees")
+    private Integer maxAttendees;
+
+    @Column(name = "current_attendees", nullable = false)
+    private Integer currentAttendees;
+
+    @Column(name = "registration_deadline")
+    private OffsetDateTime registrationDeadline;
+
+    @Column(name = "is_featured", nullable = false)
+    private Boolean featured;
+
+    @Column(name = "is_global", nullable = false)
+    private Boolean global;
+
+    @Column(name = "individual_price", precision = 10, scale = 2)
+    private BigDecimal individualPrice;
+
+    @Column(name = "team_base_price", precision = 10, scale = 2)
+    private BigDecimal teamBasePrice;
+
+    @Column(name = "price_per_member", precision = 10, scale = 2)
+    private BigDecimal pricePerMember;
+
+    @Column(name = "has_custom_team_pricing", nullable = false)
+    private Boolean hasCustomTeamPricing;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
-    
+
     @Column(name = "updated_at")
     private OffsetDateTime updatedAt;
 
     // Constructors
     public Event() {}
 
-    public Event(UUID id, String title, String description, String bannerUrl, Category category, 
-                 College college, Profile organizer, OffsetDateTime startTime, OffsetDateTime endTime, 
-                 String venue, Integer capacity, BigDecimal price, ParticipationType participationType, 
-                 EventStatus status, OffsetDateTime createdAt, OffsetDateTime updatedAt) {
+    public Event(UUID id, String title, String description, String imageUrl, Category category,
+                 College college, Profile organizer, OffsetDateTime startDate, OffsetDateTime endDate,
+                 String location, String venueDetails, ParticipationType participationType,
+                 EventStatus eventStatus, Integer teamSizeMin, Integer teamSizeMax,
+                 Integer maxAttendees, Integer currentAttendees, OffsetDateTime registrationDeadline,
+                 Boolean featured, Boolean global, BigDecimal individualPrice, BigDecimal teamBasePrice,
+                 BigDecimal pricePerMember, Boolean hasCustomTeamPricing,
+                 OffsetDateTime createdAt, OffsetDateTime updatedAt) {
         this.id = id;
         this.title = title;
         this.description = description;
-        this.bannerUrl = bannerUrl;
+        this.imageUrl = imageUrl;
         this.category = category;
         this.college = college;
         this.organizer = organizer;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.venue = venue;
-        this.capacity = capacity;
-        this.price = price;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.location = location;
+        this.venueDetails = venueDetails;
         this.participationType = participationType;
-        this.status = status;
+        this.eventStatus = eventStatus;
+        this.teamSizeMin = teamSizeMin;
+        this.teamSizeMax = teamSizeMax;
+        this.maxAttendees = maxAttendees;
+        this.currentAttendees = currentAttendees;
+        this.registrationDeadline = registrationDeadline;
+        this.featured = featured;
+        this.global = global;
+        this.individualPrice = individualPrice;
+        this.teamBasePrice = teamBasePrice;
+        this.pricePerMember = pricePerMember;
+        this.hasCustomTeamPricing = hasCustomTeamPricing;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+    }
+
+    @PrePersist
+    public void applyDefaults() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID();
+        }
+        if (this.teamSizeMin == null) {
+            this.teamSizeMin = 1;
+        }
+        if (this.teamSizeMax == null) {
+            this.teamSizeMax = 1;
+        }
+        if (this.currentAttendees == null) {
+            this.currentAttendees = 0;
+        }
+        if (this.featured == null) {
+            this.featured = Boolean.FALSE;
+        }
+        if (this.global == null) {
+            this.global = Boolean.FALSE;
+        }
+        if (this.individualPrice == null) {
+            this.individualPrice = BigDecimal.ZERO;
+        }
+        if (this.teamBasePrice == null) {
+            this.teamBasePrice = BigDecimal.ZERO;
+        }
+        if (this.pricePerMember == null) {
+            this.pricePerMember = BigDecimal.ZERO;
+        }
+        if (this.hasCustomTeamPricing == null) {
+            this.hasCustomTeamPricing = Boolean.FALSE;
+        }
+        if (this.createdAt == null) {
+            this.createdAt = OffsetDateTime.now();
+        }
+        if (this.updatedAt == null) {
+            this.updatedAt = this.createdAt;
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = OffsetDateTime.now();
     }
 
     // Getters and Setters
@@ -120,12 +209,12 @@ public class Event {
         this.description = description;
     }
 
-    public String getBannerUrl() {
-        return bannerUrl;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setBannerUrl(String bannerUrl) {
-        this.bannerUrl = bannerUrl;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Category getCategory() {
@@ -152,44 +241,36 @@ public class Event {
         this.organizer = organizer;
     }
 
-    public OffsetDateTime getStartTime() {
-        return startTime;
+    public OffsetDateTime getStartDate() {
+        return startDate;
     }
 
-    public void setStartTime(OffsetDateTime startTime) {
-        this.startTime = startTime;
+    public void setStartDate(OffsetDateTime startDate) {
+        this.startDate = startDate;
     }
 
-    public OffsetDateTime getEndTime() {
-        return endTime;
+    public OffsetDateTime getEndDate() {
+        return endDate;
     }
 
-    public void setEndTime(OffsetDateTime endTime) {
-        this.endTime = endTime;
+    public void setEndDate(OffsetDateTime endDate) {
+        this.endDate = endDate;
     }
 
-    public String getVenue() {
-        return venue;
+    public String getLocation() {
+        return location;
     }
 
-    public void setVenue(String venue) {
-        this.venue = venue;
+    public void setLocation(String location) {
+        this.location = location;
     }
 
-    public Integer getCapacity() {
-        return capacity;
+    public String getVenueDetails() {
+        return venueDetails;
     }
 
-    public void setCapacity(Integer capacity) {
-        this.capacity = capacity;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
+    public void setVenueDetails(String venueDetails) {
+        this.venueDetails = venueDetails;
     }
 
     public ParticipationType getParticipationType() {
@@ -200,12 +281,100 @@ public class Event {
         this.participationType = participationType;
     }
 
-    public EventStatus getStatus() {
-        return status;
+    public EventStatus getEventStatus() {
+        return eventStatus;
     }
 
-    public void setStatus(EventStatus status) {
-        this.status = status;
+    public void setEventStatus(EventStatus eventStatus) {
+        this.eventStatus = eventStatus;
+    }
+
+    public Integer getTeamSizeMin() {
+        return teamSizeMin;
+    }
+
+    public void setTeamSizeMin(Integer teamSizeMin) {
+        this.teamSizeMin = teamSizeMin;
+    }
+
+    public Integer getTeamSizeMax() {
+        return teamSizeMax;
+    }
+
+    public void setTeamSizeMax(Integer teamSizeMax) {
+        this.teamSizeMax = teamSizeMax;
+    }
+
+    public Integer getMaxAttendees() {
+        return maxAttendees;
+    }
+
+    public void setMaxAttendees(Integer maxAttendees) {
+        this.maxAttendees = maxAttendees;
+    }
+
+    public Integer getCurrentAttendees() {
+        return currentAttendees;
+    }
+
+    public void setCurrentAttendees(Integer currentAttendees) {
+        this.currentAttendees = currentAttendees;
+    }
+
+    public OffsetDateTime getRegistrationDeadline() {
+        return registrationDeadline;
+    }
+
+    public void setRegistrationDeadline(OffsetDateTime registrationDeadline) {
+        this.registrationDeadline = registrationDeadline;
+    }
+
+    public Boolean getFeatured() {
+        return featured;
+    }
+
+    public void setFeatured(Boolean featured) {
+        this.featured = featured;
+    }
+
+    public Boolean getGlobal() {
+        return global;
+    }
+
+    public void setGlobal(Boolean global) {
+        this.global = global;
+    }
+
+    public BigDecimal getIndividualPrice() {
+        return individualPrice;
+    }
+
+    public void setIndividualPrice(BigDecimal individualPrice) {
+        this.individualPrice = individualPrice;
+    }
+
+    public BigDecimal getTeamBasePrice() {
+        return teamBasePrice;
+    }
+
+    public void setTeamBasePrice(BigDecimal teamBasePrice) {
+        this.teamBasePrice = teamBasePrice;
+    }
+
+    public BigDecimal getPricePerMember() {
+        return pricePerMember;
+    }
+
+    public void setPricePerMember(BigDecimal pricePerMember) {
+        this.pricePerMember = pricePerMember;
+    }
+
+    public Boolean getHasCustomTeamPricing() {
+        return hasCustomTeamPricing;
+    }
+
+    public void setHasCustomTeamPricing(Boolean hasCustomTeamPricing) {
+        this.hasCustomTeamPricing = hasCustomTeamPricing;
     }
 
     public OffsetDateTime getCreatedAt() {

@@ -41,6 +41,15 @@ public class SupabaseJwtFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         
+        // Skip JWT validation for public endpoints
+        String requestPath = request.getRequestURI();
+        String method = request.getMethod();
+        
+        if (isPublicEndpoint(requestPath, method)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        
         String authHeader = request.getHeader("Authorization");
 
         // Skip if no Authorization header or doesn't start with "Bearer "
@@ -121,5 +130,37 @@ public class SupabaseJwtFilter extends OncePerRequestFilter {
             response.setContentType("application/json");
             response.getWriter().write("{\"error\": \"Internal server error\"}");
         }
+    }
+    
+    /**
+     * Check if the request is for a public endpoint that doesn't require authentication.
+     */
+    private boolean isPublicEndpoint(String path, String method) {
+        // Actuator endpoints
+        if (path.startsWith("/actuator")) {
+            return true;
+        }
+        
+        // Hello endpoint
+        if (path.equals("/api/hello")) {
+            return true;
+        }
+        if (path.equals("/api/health")) {
+            return true;
+        }
+        
+        // GET requests to public endpoints
+        if ("GET".equalsIgnoreCase(method)) {
+            return path.startsWith("/api/colleges") ||
+                   path.startsWith("/api/categories") ||
+                   path.startsWith("/api/events") ||
+                   path.startsWith("/api/reviews") ||
+                   path.startsWith("/api/registrations") ||
+                   path.startsWith("/api/teams") ||
+                   path.startsWith("/api/tickets") ||
+                   path.startsWith("/api/payments");
+        }
+        
+        return false;
     }
 }

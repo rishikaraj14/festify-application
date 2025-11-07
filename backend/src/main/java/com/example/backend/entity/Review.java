@@ -34,17 +34,39 @@ public class Review {
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
+    @Column(name = "updated_at")
+    private OffsetDateTime updatedAt;
+
     // Constructors
     public Review() {}
 
     public Review(UUID id, Event event, Profile user, Integer rating,
-                 String comment, OffsetDateTime createdAt) {
+                 String comment, OffsetDateTime createdAt, OffsetDateTime updatedAt) {
         this.id = id;
         this.event = event;
         this.user = user;
         this.rating = rating;
         this.comment = comment;
         this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID();
+        }
+        if (this.createdAt == null) {
+            this.createdAt = OffsetDateTime.now();
+        }
+        if (this.updatedAt == null) {
+            this.updatedAt = this.createdAt;
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = OffsetDateTime.now();
     }
 
     // Getters and Setters
@@ -94,5 +116,13 @@ public class Review {
 
     public void setCreatedAt(OffsetDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public OffsetDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(OffsetDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

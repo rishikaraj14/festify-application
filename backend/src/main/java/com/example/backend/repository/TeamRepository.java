@@ -22,7 +22,7 @@ public interface TeamRepository extends JpaRepository<Team, UUID> {
     /**
      * Find teams by leader ID.
      */
-    List<Team> findByLeaderId(UUID leaderId);
+    List<Team> findByTeamLeaderId(UUID leaderId);
     
     /**
      * Find team by registration ID.

@@ -18,8 +18,4 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, UUID> {
      */
     List<TeamMember> findByTeamId(UUID teamId);
     
-    /**
-     * Find all teams a member belongs to.
-     */
-    List<TeamMember> findByMemberId(UUID memberId);
 }

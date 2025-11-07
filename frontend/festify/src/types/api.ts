@@ -34,10 +34,13 @@ export interface Category {
 export interface College {
   id: string;
   name: string;
-  location: string | null;
+  location: string;
+  description: string | null;
+  logoUrl: string | null;
+  website: string | null;
+  establishedYear: number | null;
   contactEmail: string | null;
   contactPhone: string | null;
-  website: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -53,8 +56,58 @@ export interface Profile {
   organizationName: string | null;
   phoneNumber: string | null;
   avatarUrl: string | null;
+  phone: string | null;
+  bio: string | null;
+  website: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CreateCollegeDTO {
+  name: string;
+  location: string;
+  description?: string;
+  logoUrl?: string;
+  website?: string;
+  establishedYear?: number;
+  contactEmail?: string;
+  contactPhone?: string;
+}
+
+export interface UpdateCollegeDTO {
+  name?: string;
+  location?: string;
+  description?: string;
+  logoUrl?: string;
+  website?: string;
+  establishedYear?: number;
+  contactEmail?: string;
+  contactPhone?: string;
+}
+
+export interface CreateProfileDTO {
+  id: string; // Supabase user ID
+  fullName: string;
+  email: string;
+  role: UserRole;
+  college?: { id: string };
+  avatarUrl?: string;
+  phone?: string;
+  bio?: string;
+  organizationName?: string;
+  website?: string;
+}
+
+export interface UpdateProfileDTO {
+  fullName?: string;
+  email?: string;
+  avatarUrl?: string;
+  phone?: string;
+  bio?: string;
+  organizationName?: string;
+  website?: string;
+  role?: UserRole;
+  college?: { id: string };
 }
 
 export interface Event {

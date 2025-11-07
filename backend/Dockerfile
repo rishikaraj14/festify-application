@@ -64,4 +64,4 @@ ENV JAVA_OPTS="-XX:+UseContainerSupport \
 # Optional: SMTP_USER, SMTP_PASS, SMTP_FROM, ADMIN_EMAIL, ADMIN_PASS
 
 # Application startup
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.jar"]

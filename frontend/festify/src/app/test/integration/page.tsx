@@ -8,17 +8,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { runEventsAndCategoriesTests } from '@/tests/events-categories-integration.test';
 import { runCollegesAndProfilesTests } from '@/tests/colleges-profiles-integration.test';
 import { runRegistrationsAndTeamsTests } from '@/tests/registrations-teams-integration.test';
+import { runPaymentsAndTicketsTests } from '@/tests/payments-tickets-integration.test';
 import { CheckCircle2, XCircle, Loader2, Play } from 'lucide-react';
 
-type TestSuite = 'events-categories' | 'colleges-profiles' | 'registrations-teams';
+type TestSuite = 'events-categories' | 'colleges-profiles' | 'registrations-teams' | 'payments-tickets';
 
 export default function IntegrationTestPage() {
   const [runningEventsCategories, setRunningEventsCategories] = useState(false);
   const [runningCollegesProfiles, setRunningCollegesProfiles] = useState(false);
   const [runningRegistrationsTeams, setRunningRegistrationsTeams] = useState(false);
+  const [runningPaymentsTickets, setRunningPaymentsTickets] = useState(false);
   const [eventsCategoriesResults, setEventsCategoriesResults] = useState<any>(null);
   const [collegesProfilesResults, setCollegesProfilesResults] = useState<any>(null);
   const [registrationsTeamsResults, setRegistrationsTeamsResults] = useState<any>(null);
+  const [paymentsTicketsResults, setPaymentsTicketsResults] = useState<any>(null);
 
   const runTests = async (suite: TestSuite) => {
     if (suite === 'events-categories') {
@@ -71,6 +74,23 @@ export default function IntegrationTestPage() {
         });
       } finally {
         setRunningRegistrationsTeams(false);
+      }
+    } else if (suite === 'payments-tickets') {
+      setRunningPaymentsTickets(true);
+      setPaymentsTicketsResults(null);
+      
+      try {
+        const testResults = await runPaymentsAndTicketsTests();
+        setPaymentsTicketsResults(testResults);
+      } catch (error) {
+        console.error('Error running tests:', error);
+        setPaymentsTicketsResults({
+          passed: 0,
+          failed: 1,
+          tests: [{ name: 'Test Execution', status: 'FAIL', error: (error as Error).message }],
+        });
+      } finally {
+        setRunningPaymentsTickets(false);
       }
     }
   };
@@ -150,10 +170,11 @@ export default function IntegrationTestPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           <Tabs defaultValue="events-categories" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="events-categories">Events & Categories</TabsTrigger>
               <TabsTrigger value="colleges-profiles">Colleges & Profiles</TabsTrigger>
               <TabsTrigger value="registrations-teams">Registrations & Teams</TabsTrigger>
+              <TabsTrigger value="payments-tickets">Payments & Tickets</TabsTrigger>
             </TabsList>
             <TabsContent value="events-categories" className="space-y-6">
               {renderTestResults(eventsCategoriesResults, runningEventsCategories, 'events-categories')}
@@ -163,6 +184,9 @@ export default function IntegrationTestPage() {
             </TabsContent>
             <TabsContent value="registrations-teams" className="space-y-6">
               {renderTestResults(registrationsTeamsResults, runningRegistrationsTeams, 'registrations-teams')}
+            </TabsContent>
+            <TabsContent value="payments-tickets" className="space-y-6">
+              {renderTestResults(paymentsTicketsResults, runningPaymentsTickets, 'payments-tickets')}
             </TabsContent>
           </Tabs>
         </CardContent>

@@ -36,6 +36,13 @@ export enum PaymentStatus {
   REFUNDED = 'REFUNDED'
 }
 
+export enum TicketType {
+  FREE = 'FREE',
+  PAID = 'PAID',
+  VIP = 'VIP',
+  EARLY_BIRD = 'EARLY_BIRD'
+}
+
 export interface Category {
   id: string;
   name: string;
@@ -312,6 +319,72 @@ export interface UpdateTeamDTO {
   teamLeaderPhone?: string;
   teamLeaderEmail?: string;
   teamLeaderUniversityReg?: string;
+}
+
+export interface Payment {
+  id: string;
+  registrationId: string;
+  registration?: Registration;
+  ticketId: string | null;
+  ticket?: Ticket;
+  paymentStatus: PaymentStatus;
+  amount: number;
+  paymentMethod: string | null;
+  transactionId: string | null;
+  paymentDate: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Ticket {
+  id: string;
+  eventId: string;
+  event?: Event;
+  registrationId: string | null;
+  registration?: Registration;
+  ticketType: TicketType;
+  price: number;
+  ticketCode: string;
+  valid: boolean;
+  issuedAt: string;
+  usedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreatePaymentDTO {
+  registration: { id: string };
+  ticket?: { id: string };
+  paymentStatus?: PaymentStatus;
+  amount: number;
+  paymentMethod?: string;
+  transactionId?: string;
+  paymentDate?: string;
+}
+
+export interface UpdatePaymentDTO {
+  paymentStatus?: PaymentStatus;
+  amount?: number;
+  paymentMethod?: string;
+  transactionId?: string;
+  paymentDate?: string;
+}
+
+export interface CreateTicketDTO {
+  event: { id: string };
+  registration?: { id: string };
+  ticketType: TicketType;
+  price: number;
+  ticketCode?: string;
+  valid?: boolean;
+  issuedAt?: string;
+}
+
+export interface UpdateTicketDTO {
+  ticketType?: TicketType;
+  price?: number;
+  valid?: boolean;
+  usedAt?: string;
 }
 
 // API Response Types

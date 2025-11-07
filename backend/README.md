@@ -1,6 +1,46 @@
 # Festify Backend - Spring Boot REST API
 
-This is the Spring Boot backend for the Festify event management platform, connecting to the same Supabase PostgreSQL database as the Next.js frontend.
+![Java](https://img.shields.io/badge/Java-17-orange)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.12-green)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-blue)
+
+RESTful API backend for the Festify college event management platform, connecting to Supabase PostgreSQL database.
+
+## 🚀 Quick Start
+
+### Local Development
+
+```bash
+# Set environment variables
+export DB_URL="jdbc:postgresql://your-host:5432/postgres?prepareThreshold=0"
+export DB_USER="your-db-user"
+export DB_PASS="your-db-password"
+export JWT_SECRET="your-super-secret-jwt-key"
+
+# Build and run
+cd backend
+./mvnw clean package -DskipTests
+java -jar target/festify-backend-0.0.1-SNAPSHOT.jar
+```
+
+API will be available at: `http://localhost:8080`
+
+### Docker
+
+```bash
+cd backend
+docker-compose up -d
+```
+
+## 🚢 Deploy to Render
+
+**See [RENDER-DEPLOYMENT.md](../RENDER-DEPLOYMENT.md) for complete deployment guide.**
+
+Quick deploy:
+1. Push code to GitHub
+2. Create Web Service on Render
+3. Set environment variables
+4. Deploy!
 
 ## Project Structure
 

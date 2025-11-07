@@ -1,0 +1,34 @@
+# Render Blueprint for Festify Backend
+# This file enables one-click deployment to Render
+
+services:
+  - type: web
+    name: festify-backend
+    env: docker
+    region: oregon
+    plan: free
+    branch: main
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: production
+      - key: DB_URL
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASS
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        value: noreply@festify.com
+      - key: ADMIN_EMAIL
+        value: admin@festify.com
+      - key: ADMIN_PASS
+        generateValue: true

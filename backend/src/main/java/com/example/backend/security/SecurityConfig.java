@@ -77,11 +77,21 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Allow requests from Next.js frontend (both default and custom ports)
-        configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:3000",
-            "http://localhost:9002"
-        ));
+        // Allow requests from Next.js frontend (local development and production)
+        // For production, add your actual frontend URLs here
+        String allowedOrigins = System.getenv("ALLOWED_ORIGINS");
+        if (allowedOrigins != null && !allowedOrigins.isEmpty()) {
+            configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
+        } else {
+            // Default development origins
+            configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:3000",
+                "http://localhost:9002",
+                "https://*.vercel.app", // Vercel deployments
+                "https://*.netlify.app", // Netlify deployments
+                "https://*.onrender.com" // Render deployments
+            ));
+        }
         
         // Allow all HTTP methods
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));

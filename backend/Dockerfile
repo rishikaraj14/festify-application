@@ -8,17 +8,13 @@ FROM maven:3.9.9-eclipse-temurin-17-alpine AS builder
 
 WORKDIR /app
 
-# Copy Maven wrapper files first (for better layer caching)
-COPY mvnw .
-COPY .mvn .mvn
-
 # Copy pom.xml and download dependencies (cached if pom.xml unchanged)
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
 
 # Copy source code and build
 COPY src ./src
-RUN mvn clean package -DskipTests -q
+RUN mvn clean package -DskipTests -B
 
 # ============================================
 # Stage 2: Create optimized runtime image

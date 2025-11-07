@@ -26,8 +26,11 @@ export default function AdminLoginPage() {
     try {
       // Check default admin credentials
       if (username === 'admin' && password === 'admin@123') {
-        // Log out any existing user session
+        // Log out any existing user session and wait for it to complete
         await signOut();
+        
+        // Wait a bit to ensure session is cleared
+        await new Promise(resolve => setTimeout(resolve, 200));
         
         // Set admin session in localStorage
         localStorage.setItem('adminSession', JSON.stringify({
@@ -38,6 +41,7 @@ export default function AdminLoginPage() {
         // Set admin mode flag to hide header
         localStorage.setItem('adminMode', 'true');
         
+        // Navigate to admin dashboard
         router.push('/admin/dashboard');
         router.refresh();
       } else {

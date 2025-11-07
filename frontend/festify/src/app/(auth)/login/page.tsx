@@ -1,6 +1,6 @@
 'use client';
 
-import {useState, useEffect} from 'react';
+import {useState} from 'react';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {zodResolver} from '@hookform/resolvers/zod';
@@ -32,9 +32,8 @@ type FormValues = z.infer<typeof formSchema>;
 export default function LoginPage() {
   const router = useRouter();
   const {toast} = useToast();
-  const {signIn, profile, user, loading: authLoading} = useAuth();
+  const {signIn} = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [justLoggedIn, setJustLoggedIn] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -47,7 +46,7 @@ export default function LoginPage() {
   async function onSubmit(values: FormValues) {
     setIsLoading(true);
     try {
-      const {error} = await signIn(values.email, values.password);
+      const {error, profile} = await signIn(values.email, values.password);
       
       if (error) {
         throw error;
@@ -58,7 +57,19 @@ export default function LoginPage() {
         description: 'Logged in successfully.',
       });
       
-      setJustLoggedIn(true);
+      // Profile is loaded, redirect immediately based on role
+      if (profile) {
+        if (profile.role === 'organizer') {
+          router.push('/dashboard/organizer');
+        } else if (profile.role === 'attendee') {
+          router.push('/dashboard/attendee');
+        } else {
+          router.push('/dashboard');
+        }
+      } else {
+        // No profile found - might be a new user, redirect to profile creation
+        router.push('/profile/create');
+      }
     } catch (error: any) {
       // Check if it's an email confirmation error
       if (error?.message?.toLowerCase().includes('email not confirmed')) {
@@ -78,19 +89,6 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   }
-
-  // Redirect after successful login and profile is loaded
-  useEffect(() => {
-    if (justLoggedIn && profile && !isLoading) {
-      if (profile.role === 'organizer') {
-        router.push('/dashboard/organizer');
-      } else if (profile.role === 'attendee') {
-        router.push('/dashboard/attendee');
-      } else {
-        router.push('/');
-      }
-    }
-  }, [profile, isLoading, justLoggedIn, router]);
 
   return (
     <Card className="w-full max-w-md mx-auto">

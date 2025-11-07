@@ -20,8 +20,8 @@ interface AuthContextType {
     role: UserRole,
     organizationName?: string,
     collegeId?: string
-  ) => Promise<{error: Error | null}>;
-  signIn: (email: string, password: string) => Promise<{error: Error | null}>;
+  ) => Promise<{error: Error | null; profile: Profile | null}>;
+  signIn: (email: string, password: string) => Promise<{error: Error | null; profile: Profile | null}>;
   signOut: () => Promise<void>;
   updateProfile: (updates: Partial<Omit<Profile, 'id' | 'created_at' | 'updated_at'>>) => Promise<{error: Error | null}>;
 }
@@ -63,11 +63,11 @@ export function SupabaseAuthProvider({children}: {children: React.ReactNode}) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const loadProfile = async (userId: string) => {
+  const loadProfile = async (userId: string): Promise<Profile | null> => {
     if (!userId) {
       setProfile(null);
       setLoading(false);
-      return;
+      return null;
     }
     
     try {
@@ -76,7 +76,7 @@ export function SupabaseAuthProvider({children}: {children: React.ReactNode}) {
       if (!session) {
         setProfile(null);
         setLoading(false);
-        return;
+        return null;
       }
 
       const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/profiles/user/${userId}`;
@@ -90,15 +90,18 @@ export function SupabaseAuthProvider({children}: {children: React.ReactNode}) {
       if (response.ok) {
         const data = await response.json();
         setProfile(data);
+        return data; // Return the profile data
       } else {
         // Profile doesn't exist yet - this is normal for new users
         console.warn('Profile not found for user:', userId);
         setProfile(null);
+        return null;
       }
     } catch (error) {
       // Network error or other issue - don't redirect, just log
       console.warn('Error loading profile:', error);
       setProfile(null);
+      return null;
     } finally {
       setLoading(false);
     }
@@ -130,13 +133,16 @@ export function SupabaseAuthProvider({children}: {children: React.ReactNode}) {
       if (error) throw error;
 
       if (data.user) {
-        await loadProfile(data.user.id);
+        const loadedProfile = await loadProfile(data.user.id);
+        // Wait a bit for React state to update
+        await new Promise(resolve => setTimeout(resolve, 100));
+        return {error: null, profile: loadedProfile};
       }
 
-      return {error: null};
+      return {error: null, profile: null};
     } catch (error) {
       console.error('Sign up error:', error);
-      return {error: error as Error};
+      return {error: error as Error, profile: null};
     }
   };
 
@@ -150,13 +156,16 @@ export function SupabaseAuthProvider({children}: {children: React.ReactNode}) {
       if (error) throw error;
 
       if (data.user) {
-        await loadProfile(data.user.id);
+        const loadedProfile = await loadProfile(data.user.id);
+        // Wait a bit for React state to update
+        await new Promise(resolve => setTimeout(resolve, 100));
+        return {error: null, profile: loadedProfile};
       }
 
-      return {error: null};
+      return {error: null, profile: null};
     } catch (error) {
       console.error('Sign in error:', error);
-      return {error: error as Error};
+      return {error: error as Error, profile: null};
     }
   };
 

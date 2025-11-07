@@ -7,15 +7,18 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { runEventsAndCategoriesTests } from '@/tests/events-categories-integration.test';
 import { runCollegesAndProfilesTests } from '@/tests/colleges-profiles-integration.test';
+import { runRegistrationsAndTeamsTests } from '@/tests/registrations-teams-integration.test';
 import { CheckCircle2, XCircle, Loader2, Play } from 'lucide-react';
 
-type TestSuite = 'events-categories' | 'colleges-profiles';
+type TestSuite = 'events-categories' | 'colleges-profiles' | 'registrations-teams';
 
 export default function IntegrationTestPage() {
   const [runningEventsCategories, setRunningEventsCategories] = useState(false);
   const [runningCollegesProfiles, setRunningCollegesProfiles] = useState(false);
+  const [runningRegistrationsTeams, setRunningRegistrationsTeams] = useState(false);
   const [eventsCategoriesResults, setEventsCategoriesResults] = useState<any>(null);
   const [collegesProfilesResults, setCollegesProfilesResults] = useState<any>(null);
+  const [registrationsTeamsResults, setRegistrationsTeamsResults] = useState<any>(null);
 
   const runTests = async (suite: TestSuite) => {
     if (suite === 'events-categories') {
@@ -51,6 +54,23 @@ export default function IntegrationTestPage() {
         });
       } finally {
         setRunningCollegesProfiles(false);
+      }
+    } else if (suite === 'registrations-teams') {
+      setRunningRegistrationsTeams(true);
+      setRegistrationsTeamsResults(null);
+      
+      try {
+        const testResults = await runRegistrationsAndTeamsTests();
+        setRegistrationsTeamsResults(testResults);
+      } catch (error) {
+        console.error('Error running tests:', error);
+        setRegistrationsTeamsResults({
+          passed: 0,
+          failed: 1,
+          tests: [{ name: 'Test Execution', status: 'FAIL', error: (error as Error).message }],
+        });
+      } finally {
+        setRunningRegistrationsTeams(false);
       }
     }
   };
@@ -130,15 +150,19 @@ export default function IntegrationTestPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           <Tabs defaultValue="events-categories" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="events-categories">Events & Categories</TabsTrigger>
               <TabsTrigger value="colleges-profiles">Colleges & Profiles</TabsTrigger>
+              <TabsTrigger value="registrations-teams">Registrations & Teams</TabsTrigger>
             </TabsList>
             <TabsContent value="events-categories" className="space-y-6">
               {renderTestResults(eventsCategoriesResults, runningEventsCategories, 'events-categories')}
             </TabsContent>
             <TabsContent value="colleges-profiles" className="space-y-6">
               {renderTestResults(collegesProfilesResults, runningCollegesProfiles, 'colleges-profiles')}
+            </TabsContent>
+            <TabsContent value="registrations-teams" className="space-y-6">
+              {renderTestResults(registrationsTeamsResults, runningRegistrationsTeams, 'registrations-teams')}
             </TabsContent>
           </Tabs>
         </CardContent>

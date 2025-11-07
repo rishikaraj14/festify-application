@@ -22,6 +22,20 @@ export enum UserRole {
   ADMIN = 'ADMIN'
 }
 
+export enum RegistrationStatus {
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  CANCELLED = 'CANCELLED',
+  ATTENDED = 'ATTENDED'
+}
+
+export enum PaymentStatus {
+  PENDING = 'PENDING',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+  REFUNDED = 'REFUNDED'
+}
+
 export interface Category {
   id: string;
   name: string;
@@ -201,6 +215,103 @@ export interface UpdateCategoryDTO {
   name?: string;
   description?: string;
   iconName?: string;
+}
+
+export interface Registration {
+  id: string;
+  eventId: string;
+  event?: Event;
+  userId: string;
+  user?: Profile;
+  registrationStatus: RegistrationStatus;
+  registrationDate: string;
+  attendedAt: string | null;
+  notes: string | null;
+  team: boolean;
+  teamSize: number | null;
+  teamName: string | null;
+  teamLeaderName: string | null;
+  teamLeaderPhone: string | null;
+  teamLeaderEmail: string | null;
+  teamLeaderUniversityReg: string | null;
+  paymentStatus: PaymentStatus;
+  paymentAmount: number;
+  paymentMethod: string | null;
+  transactionId: string | null;
+  paidAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Team {
+  id: string;
+  eventId: string;
+  event?: Event;
+  teamLeaderId: string | null;
+  teamLeader?: Profile;
+  registrationId: string;
+  registration?: Registration;
+  teamName: string;
+  teamLeaderName: string;
+  teamLeaderPhone: string | null;
+  teamLeaderEmail: string | null;
+  teamLeaderUniversityReg: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateRegistrationDTO {
+  event: { id: string };
+  user: { id: string };
+  registrationStatus?: RegistrationStatus;
+  registrationDate?: string;
+  notes?: string;
+  team?: boolean;
+  teamSize?: number;
+  teamName?: string;
+  teamLeaderName?: string;
+  teamLeaderPhone?: string;
+  teamLeaderEmail?: string;
+  teamLeaderUniversityReg?: string;
+  paymentStatus?: PaymentStatus;
+  paymentAmount?: number;
+  paymentMethod?: string;
+}
+
+export interface UpdateRegistrationDTO {
+  registrationStatus?: RegistrationStatus;
+  attendedAt?: string;
+  notes?: string;
+  teamSize?: number;
+  teamName?: string;
+  teamLeaderName?: string;
+  teamLeaderPhone?: string;
+  teamLeaderEmail?: string;
+  teamLeaderUniversityReg?: string;
+  paymentStatus?: PaymentStatus;
+  paymentAmount?: number;
+  paymentMethod?: string;
+  transactionId?: string;
+  paidAt?: string;
+}
+
+export interface CreateTeamDTO {
+  event: { id: string };
+  teamLeader?: { id: string };
+  registration: { id: string };
+  teamName: string;
+  teamLeaderName: string;
+  teamLeaderPhone?: string;
+  teamLeaderEmail?: string;
+  teamLeaderUniversityReg?: string;
+}
+
+export interface UpdateTeamDTO {
+  teamName?: string;
+  teamLeaderName?: string;
+  teamLeaderPhone?: string;
+  teamLeaderEmail?: string;
+  teamLeaderUniversityReg?: string;
 }
 
 // API Response Types

@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # Festify Backend (Spring Boot)
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: festify-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # Database Configuration
+      DB_URL: ${DB_URL:-jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0}
+      DB_USER: ${DB_USER:-postgres.pnekjnwarkpgrlsntaor}
+      DB_PASS: ${DB_PASS}
+      
+      # JWT Configuration
+      JWT_SECRET: ${JWT_SECRET}
+      
+      # SMTP Configuration (optional)
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-noreply@festify.com}
+      
+      # Admin Configuration
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@festify.com}
+      ADMIN_PASS: ${ADMIN_PASS:-Admin@12345}
+      
+      # Spring Profile
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      
+      # JVM Options (override defaults if needed)
+      JAVA_OPTS: ${JAVA_OPTS:--XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0}
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    
+    networks:
+      - festify-network
+    
+    # Resource limits (adjust based on your needs)
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  festify-network:
+    driver: bridge
+
+# To run this:
+# 1. Create a .env file with your secrets:
+#    DB_URL=...
+#    DB_USER=...
+#    DB_PASS=...
+#    JWT_SECRET=...
+#
+# 2. Build and start:
+#    docker-compose up -d
+#
+# 3. View logs:
+#    docker-compose logs -f backend
+#
+# 4. Stop:
+#    docker-compose down

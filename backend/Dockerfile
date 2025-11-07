@@ -1,30 +1,71 @@
-# Multi-stage Dockerfile: build the Spring Boot jar and produce a small runtime image
-# Build stage
-FROM maven:3.9.4-eclipse-temurin-17 as builder
-WORKDIR /workspace
+# Multi-stage Dockerfile for Festify Backend (Spring Boot)
+# Optimized for production deployment
 
-# copy only what is needed for maven to download dependencies first (cache-friendly)
-COPY backend/pom.xml ./backend/pom.xml
-RUN mvn -f backend/pom.xml -q -DskipTests dependency:go-offline
+# ============================================
+# Stage 1: Build the application
+# ============================================
+FROM maven:3.9.9-eclipse-temurin-17-alpine AS builder
 
-# copy source and build
-COPY backend ./backend
-RUN mvn -f backend/pom.xml -DskipTests package -q
-
-# Runtime stage
-FROM eclipse-temurin:17-jre-jammy
-ARG JAR_FILE=backend/target/festify-backend-0.0.1-SNAPSHOT.jar
 WORKDIR /app
-COPY --from=builder /workspace/${JAR_FILE} ./app.jar
 
-# Expose default port
+# Copy Maven wrapper files first (for better layer caching)
+COPY mvnw .
+COPY .mvn .mvn
+
+# Copy pom.xml and download dependencies (cached if pom.xml unchanged)
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Copy source code and build
+COPY src ./src
+RUN mvn clean package -DskipTests -q
+
+# ============================================
+# Stage 2: Create optimized runtime image
+# ============================================
+FROM eclipse-temurin:17-jre-alpine
+
+# Install curl for health checks
+RUN apk add --no-cache curl tzdata
+
+# Set timezone (optional, adjust as needed)
+ENV TZ=Asia/Kolkata
+
+# Create non-root user for security
+RUN addgroup -S spring && adduser -S spring -G spring
+
+WORKDIR /app
+
+# Copy JAR from builder stage
+COPY --from=builder /app/target/festify-backend-*.jar app.jar
+
+# Change ownership to spring user
+RUN chown -R spring:spring /app
+
+# Switch to non-root user
+USER spring:spring
+
+# Expose application port
 EXPOSE 8080
 
-# Prefer environment variables for datasource configuration. Example envs:
-# SPRING_DATASOURCE_URL=jdbc:postgresql://db.supabase.co:5432/postgres
-# SPRING_DATASOURCE_USERNAME=postgres
-# SPRING_DATASOURCE_PASSWORD=secret
+# Health check endpoint
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:8080/actuator/health || exit 1
 
-ENV JAVA_OPTS="-Xms256m -Xmx512m"
+# JVM options optimized for containers
+ENV JAVA_OPTS="-XX:+UseContainerSupport \
+               -XX:MaxRAMPercentage=75.0 \
+               -XX:InitialRAMPercentage=50.0 \
+               -XX:+UseG1GC \
+               -XX:MaxGCPauseMillis=100 \
+               -XX:+UseStringDeduplication \
+               -XX:+ExitOnOutOfMemoryError \
+               -Djava.security.egd=file:/dev/./urandom \
+               -Dspring.profiles.active=prod"
 
-ENTRYPOINT ["sh","-c","exec java $JAVA_OPTS -jar /app/app.jar"]
+# Environment variables (override these at runtime)
+# Required: DB_URL, DB_USER, DB_PASS, JWT_SECRET
+# Optional: SMTP_USER, SMTP_PASS, SMTP_FROM, ADMIN_EMAIL, ADMIN_PASS
+
+# Application startup
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

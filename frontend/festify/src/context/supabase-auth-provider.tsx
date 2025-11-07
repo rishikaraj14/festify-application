@@ -64,11 +64,19 @@ export function SupabaseAuthProvider({children}: {children: React.ReactNode}) {
   }, []);
 
   const loadProfile = async (userId: string) => {
+    if (!userId) {
+      setProfile(null);
+      setLoading(false);
+      return;
+    }
+    
     try {
       const data = await apiFetch(`/api/profiles/user/${userId}`);
       setProfile(data);
     } catch (error) {
-      console.error('Error loading profile:', error);
+      // Profile doesn't exist yet (new user) or there's a network issue
+      // This is expected for new users, so we just set profile to null
+      console.warn('Profile not found for user:', userId);
       setProfile(null);
     } finally {
       setLoading(false);

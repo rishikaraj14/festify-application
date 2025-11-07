@@ -35,9 +35,28 @@ export async function apiFetch<T = any>(
   // Get current session
   const { data: { session }, error: sessionError } = await supabase.auth.getSession()
 
+  // Check if this is a GET request to a public endpoint
+  const method = options?.method?.toUpperCase() || 'GET'
+  const isPublicEndpoint = method === 'GET' && (
+    path.startsWith('/api/events') ||
+    path.startsWith('/api/categories') ||
+    path.startsWith('/api/colleges') ||
+    path.startsWith('/api/hello') ||
+    path.startsWith('/api/health')
+  )
+
+  // If no session and it's a public GET endpoint, use public fetch
+  if (!session && isPublicEndpoint) {
+    return apiPublicFetch<T>(path, options)
+  }
+
   if (sessionError) {
     console.error('Error getting session:', sessionError)
-    // Redirect to login if session error
+    // For public endpoints, fallback to public fetch
+    if (isPublicEndpoint) {
+      return apiPublicFetch<T>(path, options)
+    }
+    // Redirect to login for protected endpoints
     if (typeof window !== 'undefined') {
       window.location.href = '/auth/login'
     }
@@ -45,14 +64,18 @@ export async function apiFetch<T = any>(
   }
 
   if (!session) {
-    // No session - redirect to login
+    // For public endpoints, use public fetch
+    if (isPublicEndpoint) {
+      return apiPublicFetch<T>(path, options)
+    }
+    // No session - redirect to login for protected endpoints
     if (typeof window !== 'undefined') {
       window.location.href = '/auth/login'
     }
     throw new Error('Not authenticated')
   }
 
-  // Build headers
+  // Build headers with auth token
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${session.access_token}`,
@@ -71,7 +94,12 @@ export async function apiFetch<T = any>(
 
     // Handle 401 Unauthorized - token expired or invalid
     if (response.status === 401) {
-      console.error('Unauthorized - redirecting to login')
+      console.error('Unauthorized - token may be expired')
+      // For public endpoints, retry without auth
+      if (isPublicEndpoint) {
+        return apiPublicFetch<T>(path, options)
+      }
+      // Redirect to login for protected endpoints
       if (typeof window !== 'undefined') {
         window.location.href = '/auth/login'
       }
@@ -125,13 +153,15 @@ export async function apiPublicFetch<T = any>(
     const response = await fetch(url, {
       ...options,
       headers,
+      // Add credentials: 'omit' to prevent sending cookies
+      credentials: 'omit',
     })
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
-      throw new Error(
-        errorData.message || errorData.error || `Request failed with status ${response.status}`
-      )
+      const errorMessage = errorData.message || errorData.error || `Request failed with status ${response.status}`
+      console.error(`API Error [${response.status}]:`, errorMessage)
+      throw new Error(errorMessage)
     }
 
     if (response.status === 204) {
@@ -141,6 +171,7 @@ export async function apiPublicFetch<T = any>(
     const data = await response.json()
     return data as T
   } catch (error) {
+    console.error('Public API fetch error:', error)
     if (error instanceof Error) {
       throw error
     }

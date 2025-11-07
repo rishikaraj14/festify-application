@@ -28,10 +28,10 @@ import {
 import Autoplay from 'embla-carousel-autoplay';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { supabase } from '@/lib/supabase/client';
-import { apiFetch } from '@/utils/apiClient';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/use-auth';
+import { eventsService } from '@/services/events.service';
+import type { Event } from '@/types/api';
 
 
 const categories = [
@@ -70,19 +70,19 @@ const testimonials = [
   {
     name: 'Priya Sharma',
     college: 'IIT Bombay',
-    avatar: '/avatars/01.png',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Priya',
     quote: 'Festify is a game-changer for college students! I discovered so many amazing events I would have otherwise missed. The ticketing process is super smooth.',
   },
   {
     name: 'Rahul Verma',
     college: 'SRMIST, Chennai',
-    avatar: '/avatars/02.png',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rahul',
     quote: 'As a club organizer, this platform has made it so much easier to promote our events and reach a wider audience. Highly recommended!',
   },
   {
     name: 'Ananya Singh',
     college: 'Delhi University',
-    avatar: '/avatars/03.png',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ananya',
     quote: 'I love how easy it is to find events happening around me. The categories section helps me find exactly what I\'m looking for. A must-have app for every student!',
   },
 ];
@@ -90,40 +90,21 @@ const testimonials = [
 
 export default function Home() {
   const { profile } = useAuth();
-  const [featuredEvents, setFeaturedEvents] = useState<any[]>([]);
+  const [featuredEvents, setFeaturedEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadFeaturedEvents();
-  }, [profile]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id, profile?.college_id]);
 
   const loadFeaturedEvents = async () => {
     try {
       // Fetch all published events from backend
-      const data = await apiFetch('/api/events');
+      const data = await eventsService.getAll();
 
       // Filter events based on user's college eligibility
-      let filteredEvents = data || [];
-      if (profile) {
-        filteredEvents = (data || []).filter((event: any) => {
-          // Global events are visible to everyone
-          if (event.isGlobal) return true;
-          
-          // Events without a college are visible to everyone
-          if (!event.college?.id) return true;
-          
-          // If user has no college, they only see global events
-          if (!profile.college_id) return event.isGlobal || !event.college?.id;
-          
-          // College-specific events are only visible to users from that college
-          return event.college?.id === profile.college_id;
-        });
-      } else {
-        // Not logged in users only see global events and events without college
-        filteredEvents = (data || []).filter((event: any) => 
-          event.isGlobal || !event.college?.id
-        );
-      }
+      const filteredEvents = eventsService.filterByEligibility(data || [], profile);
 
       setFeaturedEvents(filteredEvents);
     } catch (error) {

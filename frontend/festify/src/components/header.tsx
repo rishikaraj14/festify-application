@@ -48,8 +48,8 @@ export function Header() {
     // Listen for storage changes (for cross-tab sync)
     window.addEventListener('storage', checkAdminMode);
     
-    // Also check periodically in case of same-tab changes
-    const interval = setInterval(checkAdminMode, 500);
+    // Check every 2 seconds instead of 500ms to reduce re-renders
+    const interval = setInterval(checkAdminMode, 2000);
 
     return () => {
       window.removeEventListener('storage', checkAdminMode);

@@ -4,29 +4,14 @@ import { EventCard } from '@/components/event-card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useSearchParams } from 'next/navigation';
-import { supabase } from '@/lib/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, Filter, Calendar } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/use-auth';
 import { debounce, cache } from '@/lib/performance';
-import { apiFetch } from '@/utils/apiClient';
-
-// Helper function to filter events by user eligibility
-function filterEventsByEligibility(events: any[], profile: any) {
-  if (!events || events.length === 0) return [];
-  
-  if (profile) {
-    return events.filter((event: any) => {
-      if (event.isGlobal) return true;
-      if (!event.college?.id) return true;
-      if (!profile.college_id) return event.isGlobal || !event.college?.id;
-      return event.college?.id === profile.college_id;
-    });
-  }
-  
-  return events.filter((event: any) => event.isGlobal || !event.college?.id);
-}
+import { eventsService } from '@/services/events.service';
+import { categoriesService } from '@/services/categories.service';
+import type { Event, Category } from '@/types/api';
 
 export function EventsPageClient() {
   const searchParams = useSearchParams();
@@ -36,8 +21,8 @@ export function EventsPageClient() {
   
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
-  const [events, setEvents] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
 
@@ -48,7 +33,8 @@ export function EventsPageClient() {
 
   useEffect(() => {
     loadEventsAndCategories();
-  }, [profile]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id, profile?.college_id]);
 
   const loadEventsAndCategories = async () => {
     setLoading(true);
@@ -66,12 +52,12 @@ export function EventsPageClient() {
 
       // Parallel loading for better performance
       const [categoriesData, eventsData] = await Promise.all([
-        apiFetch('/api/categories'),
-        apiFetch('/api/events')
+        categoriesService.getAll(),
+        eventsService.getAll()
       ]);
 
       // Filter events based on user's college eligibility
-      const filteredEvents = filterEventsByEligibility(eventsData || [], profile);
+      const filteredEvents = eventsService.filterByEligibility(eventsData || [], profile);
 
       // Cache the results
       cache.set(cacheKey, { categories: categoriesData || [], events: filteredEvents }, 2 * 60 * 1000); // 2 min cache

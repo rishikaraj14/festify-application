@@ -71,12 +71,33 @@ export function SupabaseAuthProvider({children}: {children: React.ReactNode}) {
     }
     
     try {
-      const data = await apiFetch(`/api/profiles/user/${userId}`);
-      setProfile(data);
+      // Use apiPublicFetch to avoid redirect loops during profile loading
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setProfile(null);
+        setLoading(false);
+        return;
+      }
+
+      const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/profiles/user/${userId}`;
+      const response = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setProfile(data);
+      } else {
+        // Profile doesn't exist yet - this is normal for new users
+        console.warn('Profile not found for user:', userId);
+        setProfile(null);
+      }
     } catch (error) {
-      // Profile doesn't exist yet (new user) or there's a network issue
-      // This is expected for new users, so we just set profile to null
-      console.warn('Profile not found for user:', userId);
+      // Network error or other issue - don't redirect, just log
+      console.warn('Error loading profile:', error);
       setProfile(null);
     } finally {
       setLoading(false);

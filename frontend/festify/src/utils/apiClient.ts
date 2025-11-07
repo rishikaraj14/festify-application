@@ -58,7 +58,7 @@ export async function apiFetch<T = any>(
     }
     // Redirect to login for protected endpoints
     if (typeof window !== 'undefined') {
-      window.location.href = '/auth/login'
+      window.location.href = '/login'
     }
     throw new Error('Authentication required')
   }
@@ -70,7 +70,7 @@ export async function apiFetch<T = any>(
     }
     // No session - redirect to login for protected endpoints
     if (typeof window !== 'undefined') {
-      window.location.href = '/auth/login'
+      window.location.href = '/login'
     }
     throw new Error('Not authenticated')
   }
@@ -101,7 +101,7 @@ export async function apiFetch<T = any>(
       }
       // Redirect to login for protected endpoints
       if (typeof window !== 'undefined') {
-        window.location.href = '/auth/login'
+        window.location.href = '/login'
       }
       throw new Error('Unauthorized')
     }

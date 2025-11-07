@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { CategoryCard } from './category-card';
-import { supabase } from '@/lib/supabase/client';
 import { Skeleton } from './ui/skeleton';
-import { Sparkles, Grid3x3 } from 'lucide-react';
-import { apiFetch } from '@/utils/apiClient';
+import { Grid3x3 } from 'lucide-react';
+import { categoriesService } from '@/services/categories.service';
+import type { Category } from '@/types/api';
 
 export function CategoriesSection() {
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,7 +17,7 @@ export function CategoriesSection() {
 
   const loadCategories = async () => {
     try {
-      const data = await apiFetch('/api/categories');
+      const data = await categoriesService.getAll();
       setCategories(data || []);
     } catch (error) {
       console.error('Error loading categories:', error);
